@@ -23,6 +23,7 @@ Called once after engine is initialized but before event-polling begins.
 
 // Uncomment the following BLOCK to expose PS.init() event handler:
 
+var db = "followtherule_db";
 
 
 var G = (function() {
@@ -62,23 +63,48 @@ var G = (function() {
 
     var change = false;
 
+    var prevChoice;
+
+    var firstRound = true;
+
+    var finalize = function () {
+        ////////////////
+    };
+
+
 
     var exports = {
 
 
         victory : function (decision) {
 
+            firstRound = false;
+
             if (decision === "GOOD") {
+
+
                 if (level < 9) {
                     PS.statusColor(0x3FF40);
                     if (timer !== null) {
-                        PS.debug("NULL\n");
                         PS.timerStop(timer);
                     }
 
                     var compliment = PS.random(5);
 
-                    level++;
+                    if (prevChoice === "BAD") {
+                        level = 0;
+                        levelBad++;
+                    }
+                    else {
+                        levelBad = 0;
+                        level++;
+                    }
+
+
+                    if ( db && PS.dbValid( db ) ) {
+                        PS.dbEvent( db, "Good Choice", "GOOD" );
+                    }
+
 
                     switch (compliment) {
                         case 1:
@@ -111,9 +137,11 @@ var G = (function() {
 
                 }
                 else {
+
                     if (timer !== null) {
                         PS.timerStop(timer);
                     }
+
                     PS.statusColor(PS.COLOR_WHITE);
                     PS.statusText("The Game is over. Well Done. Now go home.");
                     PS.borderFade(PS.ALL, PS.ALL, 15);
@@ -127,16 +155,36 @@ var G = (function() {
                     PS.fade(PS.ALL, PS.ALL, 15);
                     PS.color (PS.ALL, PS.ALL, PS.COLOR_GRAY);
 
+                    if ( db && PS.dbValid( db ) ) {
+                        PS.dbEvent( db, "endgame", true );
+                        PS.dbSend( db, "bmoriarty", { discard : true } );
+                        db = null;
+                    }
+
                     PS.audioPlay("fx_tada");
                 }
             }
             else if (decision === "BAD") {
+
+
+
                 if (levelBad < 4) {
                     if (timer !== null) {
                         PS.timerStop(timer);
                     }
-                    level = 0;
-                    levelBad++;
+
+                    if (prevChoice === "GOOD") {
+                        levelBad = 0;
+                        level = 0;
+                    } else {
+                        level = 0;
+                        levelBad++;
+                    }
+
+
+                    if ( db && PS.dbValid( db ) ) {
+                        PS.dbEvent( db, "Bad Choice", "BAD" );
+                    }
 
                     var anger = PS.random(5);
 
@@ -187,6 +235,12 @@ var G = (function() {
                     PS.color (PS.ALL, PS.ALL, PS.COLOR_BLACK);
 
                     PS.audioPlay("l_piano_eb1");
+
+                    if ( db && PS.dbValid( db ) ) {
+                        PS.dbEvent( db, "endgame", true );
+                        PS.dbSend( db, "bmoriarty", { discard : true } );
+                        db = null;
+                    }
                 }
             }
 
@@ -326,7 +380,6 @@ var G = (function() {
 
 
         start : function (x, y) {
-            PS.debug("x " + x + " y " + y + "\n");
             if ( !timer ) { // null if not running
                 if (levelBad === 0 ) {
                     count = 4; // reset count
@@ -396,10 +449,13 @@ var G = (function() {
         },
 
 
+        setPrevChoice : function (thePrevChoice) {
+            prevChoice = thePrevChoice;
+        },
+
 
         init : function () {
             PS.gridSize(WIDTH, HEIGHT);
-
 
             timer = null; // timer id, null if none
 
@@ -421,8 +477,11 @@ var G = (function() {
 
 
             if (level === 0 && levelBad === 0) {
-                var rands = G.randGet();
+
                 PS.statusText("Welcome. Select the Red Bead.");
+
+                var rands = G.randGet();
+
 
 
                 PS.color(8, 7, PS.COLOR_RED);
@@ -474,7 +533,6 @@ var G = (function() {
                             PS.gridPlane(0);
                         }
                         else {
-                            PS.debug("NEW COLOR\n");
                             var r, g, b;
                             r = PS.random(255); // random red 0-255
                             g = PS.random(255); // random green
@@ -495,9 +553,19 @@ var G = (function() {
             PS.audioLoad( "fx_squawk" ); //Duck Squak on failure
             PS.audioLoad( "fx_tada" ); //WIN!!!
 
+            if (firstRound === true) {
+                if (db) {
+                    db = PS.dbInit(db, {login: finalize});
+                    if (db === PS.ERROR) {
+                        db = null;
+                    }
+                }
+                else {
+                    finalize();
+                }
+            }
+
         }
-
-
 
     };
 
@@ -532,14 +600,14 @@ PS.touch = function ( x, y, data, options ) {
 
     if (level === 3) {
         if ((PS.color(x, y) === PS.COLOR_YELLOW) && level === 3) {
-            PS.debug("BAD\n");
+
             G.victory("BAD");
             G.setChange(false);
         }
 
     }
     else if(level === 4) {
-        PS.debug("TOUCH ELSE\n");
+
         if (x === badLocation[0] && y === badLocation[1] ) {
             G.victory("BAD");
         }
@@ -548,7 +616,7 @@ PS.touch = function ( x, y, data, options ) {
         }
     }
     else {
-        PS.debug("TOUCH ELSE\n")
+
         if (x === badLocation[0] && y === badLocation[1] ) {
             G.victory("BAD");
         }
@@ -556,11 +624,7 @@ PS.touch = function ( x, y, data, options ) {
             G.victory("GOOD");
         }
 
-
     }
-
-
-
 
 };
 
@@ -756,7 +820,6 @@ NOTE: This event is only used for applications utilizing server communication.
 
 // Uncomment the following BLOCK to expose PS.shutdown() event handler:
 
-/*
 
 PS.shutdown = function( options ) {
 	// Uncomment the following code line to verify operation:
@@ -764,9 +827,16 @@ PS.shutdown = function( options ) {
 	// PS.debug( "Daisy, Daisy ...\n" );
 
 	// Add code here for when Perlenspiel is about to close.
+
+
+    if ( db && PS.dbValid( db ) ) {
+        PS.dbEvent( db, "shutdown", true );
+        PS.dbSend( db, "bmoriarty", { discard : true } );
+    }
+
+
 };
 
-*/
 
 /*
 Perlenspiel is a scheme by Professor Moriarty (bmoriarty@wpi.edu).
