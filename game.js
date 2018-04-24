@@ -23,7 +23,7 @@ Called once after engine is initialized but before event-polling begins.
 
 // Uncomment the following BLOCK to expose PS.init() event handler:
 
-var db = null;
+var db = "followtherule_db";
 
 
 var G = (function() {
