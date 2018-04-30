@@ -8,127 +8,111 @@
 /*jslint nomen: true, white: true */
 /*global PS */
 
-/*
-This is a template for creating new Perlenspiel games.
-All event-handling functions are commented out by default.
-Uncomment and add code to the event handlers required by your project.
-*/
 
-/*
-PS.init( system, options )
-Called once after engine is initialized but before event-polling begins.
-[system] = an object containing engine and platform information; see API documentation for details.
-[options] = an object with optional parameters; see API documentation for details.
-*/
-
-// Uncomment the following BLOCK to expose PS.init() event handler:
-
-var db = "followtherule_db";
-//var db = null;
+//var db = "followtherule_db";
+var db = null;
 var circumVec = false;
 
-var C = (function() {
+var C = ( function() {
 
     //Board Configurations
 
-    var board1 = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,4,0,0,0,0,0,0,1,
-        1,2,0,2,0,2,0,2,0,2,0,2,0,2,0,1,
-        1,0,2,0,2,0,2,0,2,0,2,0,2,0,2,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+
+    let board1 = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 1,
+        1, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1,
+        1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
     ];
 
-
-
-    //Not Used
-    var board3 = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,0,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,0,0,2,1,
-        1,3,3,3,3,3,3,3,3,3,3,0,0,2,0,1,
-        1,3,3,3,3,3,3,3,3,3,0,0,2,0,2,1,
-        1,3,3,3,3,3,3,3,3,0,0,2,0,2,0,1,
-        1,3,3,3,3,3,3,3,0,0,2,0,2,0,4,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    let board3 = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 0, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 0, 2, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 0, 2, 0, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 0, 0, 2, 0, 2, 0, 4, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
     ];
 
-    var board4 = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,2,2,2,0,0,0,0,0,0,0,3,1,
-        1,4,0,2,2,2,0,0,0,0,0,0,0,3,3,1,
-        1,0,2,2,2,0,0,0,0,0,0,0,3,3,3,1,
-        1,2,2,2,0,0,0,0,0,0,0,3,3,3,3,1,
-        1,2,2,0,0,0,0,0,0,0,3,3,3,3,3,1,
-        1,2,0,0,0,0,0,0,0,3,3,3,3,3,3,1,
-        1,0,0,0,0,0,0,0,3,3,3,3,3,3,3,1,
-        1,0,0,0,0,0,0,3,3,3,3,3,3,3,3,1,
-        1,0,0,0,0,0,3,3,3,3,3,3,3,3,3,1,
-        1,0,0,0,0,3,3,3,3,3,3,3,3,3,3,1,
-        1,0,0,0,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,0,0,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,0,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    let board4 = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 1,
+        1, 4, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 1,
+        1, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 1,
+        1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 1,
+        1, 2, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 1,
+        1, 2, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     ];
 
-    var board5 = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,3,3,3,0,0,0,2,2,0,0,0,0,0,0,1,
-        1,3,3,3,0,0,0,2,2,0,0,0,0,0,4,1,
-        1,3,3,3,0,0,0,2,2,0,0,0,0,0,0,1,
-        1,3,3,3,0,1,1,1,1,1,1,0,0,0,0,1,
-        1,3,3,3,0,0,1,1,1,1,0,0,0,0,0,1,
-        1,3,3,3,0,0,0,1,1,0,0,0,0,0,0,1,
-        1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,0,0,0,5,5,5,0,0,0,0,0,1,
-        1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    let board5 = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 3, 3, 3, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 1,
+        1, 3, 3, 3, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 4, 1,
+        1, 3, 3, 3, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 1,
+        1, 3, 3, 3, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1,
+        1, 3, 3, 3, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1,
+        1, 3, 3, 3, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 0, 0, 0, 5, 5, 5, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     ];
 
-    var board6 = [
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,4,0,0,1,
-        1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,
-        1,0,0,0,0,5,0,0,0,0,0,0,1,1,1,1,
-        1,3,0,0,0,5,0,0,0,0,3,3,3,3,3,1,
-        1,3,0,0,0,5,2,2,0,0,3,3,3,3,3,1,
-        1,3,0,0,0,0,0,0,0,0,3,3,3,3,3,1,
-        1,0,0,0,0,0,0,0,0,0,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,
-        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+    let board6 = [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+        1, 3, 0, 0, 0, 5, 0, 0, 0, 0, 3, 3, 3, 3, 3, 1,
+        1, 3, 0, 0, 0, 5, 2, 2, 0, 0, 3, 3, 3, 3, 3, 1,
+        1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     ];
 
     var level = 0;//Current Level
@@ -136,7 +120,7 @@ var C = (function() {
     var started = false;
 
     //All levels
-    let levels = [board1, board3 , board4, board5, board6];
+    let levels = [board1, board3, board4, board5, board6];
 
     //Total score that player earns.
     let energyScore = 0;
@@ -155,20 +139,25 @@ var C = (function() {
     let musicTrackBounce = 0;
     let origMusic = 0;
 
-    var xglobe = 0;//Current Position of edge of vector
-    var yglobe = 0;
+    let xglobe = 0;//Current Position of edge of vector
+    let yglobe = 0;
 
     //Coordinates where the bounce begins.
-    var xB = 0;
-    var yB = 0;
+    let xB = 0;
+    let yB = 0;
 
     //Starting coordinates of vector
-    var xStart = 0;
-    var yStart = 0;
+    let xStart = 0;
+    let yStart = 0;
+
+    let xTouch = 0;
+    let yTouch = 0;
 
     // Position where the cursor is lifted up from
-    var xLift = 0;
-    var yLift = 0;
+    let xLift = 0;
+    let yLift = 0;
+
+
 
     const COLOR_FLOOR = PS.COLOR_WHITE; // floor color
     const COLOR_WALL = PS.COLOR_BLACK; // wall color
@@ -180,16 +169,18 @@ var C = (function() {
 
 
     //Check to see if the first part of the vector has been cleared.
-    var firstDone = false;
+    let firstDone = false;
 
     //Check to see if the vector will bounce of a blue bead.
-    var bounced = false;
+    let bounced = false;
 
-    var beadCount = 0;
+    let beadCount = 0;
 
-    var timer = null; // timer id, null if none
+    let allDone = true;
 
-    var musicOST = ["xylo_c5",  "xylo_db5", "xylo_d5", "xylo_eb5",
+    let timer = null; // timer id, null if none
+
+    let musicOST = ["xylo_c5", "xylo_db5", "xylo_d5", "xylo_eb5",
         "xylo_f5", "xylo_gb5", "xylo_g5", "xylo_ab5", "xylo_a5",
         "xylo_bb5", "xylo_b5", "xylo_c6", "xylo_db6", "xylo_d6",
         "xylo_eb6"];
@@ -306,14 +297,13 @@ var C = (function() {
         //h, v: horiz and verticle direction that the vector is moving in each cycle.
         endMove : function (x, y, h, v, dir) {
 
-
             xglobe += h; // update grabber's x-pos
             yglobe += v; // update grabber's y-pos
             //Check the color of the next bead. If not a special bead, move on. If it is special, stop.
 
+
             if (PS.color(xglobe, yglobe) === COLOR_WALL) {
                 PS.timerStop(timer);
-
                 firstDone = true;
                 timer = null;
 
@@ -322,6 +312,7 @@ var C = (function() {
                     PS.gridPlane(1);
                     C.bounceEnd(x, y, dir);
                     started = false;
+
 
                 }
                 else {
@@ -442,6 +433,8 @@ var C = (function() {
                 PS.alpha( xglobe, yglobe, PS.ALPHA_TRANSPARENT );
             }
 
+
+
         },
 
 
@@ -513,6 +506,8 @@ var C = (function() {
 
             }
 
+            allDone = true;
+
         },
 
 
@@ -578,6 +573,7 @@ var C = (function() {
 
             xglobe += h; // update grabber's x-pos
             yglobe += v; // update grabber's y-pos
+
 
 
             if (PS.color(xglobe, yglobe) === COLOR_WALL) {
@@ -647,6 +643,7 @@ var C = (function() {
             PS.gridPlane(1);
 
             started = true;
+            allDone = false;
 
             if (!timer) {
 
@@ -777,7 +774,6 @@ var C = (function() {
             y += v;
 
             PS.color(x, y, PS.COLOR_RED);
-
             PS.alpha(x, y, PS.ALPHA_OPAQUE);
 
 
@@ -950,6 +946,33 @@ var C = (function() {
         },
 
 
+        getTimer : function () {
+
+            return timer;
+
+        },
+
+        getAllDone : function () {
+            return allDone;
+        },
+
+
+        getXTouch : function () {
+            return xTouch;
+        },
+
+        getYTouch : function () {
+            return yTouch;
+        },
+
+        setXTouch : function (xNew) {
+            xTouch = xNew;
+        },
+
+        setYTouch : function (yNew) {
+            yTouch = yNew;
+        },
+
 
         // C.init()
         // Initializes the game
@@ -1071,6 +1094,9 @@ var G = (function() {
     var count = 0;
     var timer = null;
 
+    let prevX = 0;
+    let prevY = 0;
+
     var badArr;
 
     var change = false;
@@ -1096,8 +1122,7 @@ var G = (function() {
 
             if (decision === "GOOD") {
 
-
-                if (level < 6) {
+                if (level < 4) {
                     PS.statusColor(0x3FF40);
                     if (timer !== null) {
                         PS.timerStop(timer);
@@ -1230,6 +1255,7 @@ var G = (function() {
 
                 }
                 else {
+                    levelBad++;
                     if (timer !== null) {
                         PS.timerStop(timer);
                     }
@@ -1294,7 +1320,7 @@ var G = (function() {
 
         randomPlaceBad3 : function (x, y) {
 
-            PS.statusText("Click the %ERROR%Yellow%ERROR% Bead");
+            PS.statusText("Fine. Click the Yellow Bead.");
             count -= 1;
 
             if ( count === 1 ) { // reached zero?
@@ -1367,6 +1393,7 @@ var G = (function() {
                         }
                     }
                 }
+
             }
             else if (count < 1){
                 PS.timerStop( timer );
@@ -1434,16 +1461,16 @@ var G = (function() {
 
                 case 8:
                     PS.color(4, 10, PS.COLOR_RED);
-                    PS.color(6, 13, PS.COLOR_YELLOW);
-                    G.setLoc(6, 13);
+                    PS.color(6, 12, PS.COLOR_YELLOW);
+                    G.setLoc(6, 12);
                     break;
                 case 7:
-                    PS.color(6, 13, PS.COLOR_RED);
-                    PS.color(8, 13, PS.COLOR_YELLOW);
-                    G.setLoc(8, 13);
+                    PS.color(6, 12, PS.COLOR_RED);
+                    PS.color(8, 12, PS.COLOR_YELLOW);
+                    G.setLoc(8, 12);
                     break;
                 case 6:
-                    PS.color(8, 13, PS.COLOR_RED);
+                    PS.color(8, 12, PS.COLOR_RED);
                     PS.color(10, 10, PS.COLOR_YELLOW);
                     G.setLoc(10, 10);
                     break;
@@ -1498,13 +1525,69 @@ var G = (function() {
 
         },
 
+        randomPlaceGood : function (x, y, redx, redy) {
 
-        start : function (x, y) {
+            count -= 1;
+
+            //PS.debug("redx " + redx + " redy " + redy + "\n");
+            //PS.debug("prevx " + prevX + " prevy " + prevY + "\n");
+
+            if (prevX === 0 && prevY === 0) {
+
+                prevX = redx;
+                prevY = redy;
+
+
+            }
+            else {
+
+                PS.color(prevX, prevY, PS.COLOR_WHITE);
+                PS.border(prevX, prevY, 1);
+                PS.borderColor(prevX, prevY, PS.COLOR_GRAY);
+
+                var rands3 = G.randGet();
+                PS.border(rands3[0], rands3[1], 2);
+                PS.borderColor(rands3[0], rands3[1], PS.COLOR_BLUE);
+                PS.color(rands3[0], rands3[1], PS.COLOR_RED);
+
+                prevX = rands3[0];
+                prevY = rands3[1];
+
+                if (count === 1) { // reached zero?
+
+                    PS.color(x, y, PS.COLOR_YELLOW);
+
+                }
+
+
+            }
+
+
+
+        },
+
+
+        start : function (x, y, redx, redy) {
+
+            prevX = 0;
+            prevY = 0;
+
 
             if ( !timer ) { // null if not running
-                if (levelBad === 0 ) {
+                if (levelBad === 0 && level === 0) {
                     count = 4; // reset count
                     timer = PS.timerStart(60, G.randomPlace, x, y);
+                }
+                if (levelBad === 0 && level > 0) {
+
+                    var time = 200;
+
+                    var newtime = (time / level) + 10;
+
+                    count = 3;
+                    timer = PS.timerStart(newtime, G.randomPlaceGood, x, y, redx, redy)
+
+
                 }
                 else if (levelBad === 1) {
                     count = 3;
@@ -1532,7 +1615,7 @@ var G = (function() {
                     timer = PS.timerStart(60, G.randomPlaceBad5, x, y);
                 }
                 else if (levelBad === 5) {
-                    count = 18;
+                    count = 17;
 
                     timer = PS.timerStart(60, G.randomPlaceBad6, x, y);
                 }
@@ -1544,8 +1627,8 @@ var G = (function() {
                     PS.color(4, 6, PS.COLOR_RED);
                     PS.color(4, 8, PS.COLOR_RED);
                     PS.color(4, 10, PS.COLOR_RED);
-                    PS.color(6, 13, PS.COLOR_RED);
-                    PS.color(8, 13, PS.COLOR_RED);
+                    PS.color(6, 12, PS.COLOR_RED);
+                    PS.color(8, 12, PS.COLOR_RED);
                     PS.color(10, 10, PS.COLOR_RED);
                     PS.color(10, 8, PS.COLOR_RED);
                     PS.color(10, 6, PS.COLOR_RED);
@@ -1573,10 +1656,10 @@ var G = (function() {
 
         randGet : function () {
 
-            var xRand = PS.random(13) + 1;
-            var yRand = PS.random(13) + 1;
+            let xRand = PS.random(13) + 1;
+            let yRand = PS.random(13) + 1;
 
-            var randArr = [xRand, yRand];
+            let randArr = [xRand, yRand];
 
             return randArr;
         },
@@ -1652,12 +1735,10 @@ var G = (function() {
 
             if (level > 0) {
                 var rands2 = G.randGet();
-
-
                 PS.border(rands[0], rands[1], 2);
                 PS.borderColor(rands[0], rands[1], PS.COLOR_BLUE);
                 PS.color(rands[0], rands[1], PS.COLOR_RED);
-                G.start(rands2[0], rands2[1]);
+                G.start(rands2[0], rands2[1], rands[0], rands[1]);
                 G.setLoc(rands2[0], rands2[1]);
 
             }
@@ -1770,7 +1851,7 @@ var G = (function() {
             PS.audioLoad( "fx_tada" ); //WIN!!!
             PS.audioLoad( "fx_coin6");
 
-            if (firstRound === true) {
+            if (firstRound) {
                 if (db) {
                     db = PS.dbInit(db, {login: finalize});
                     if (db === PS.ERROR) {
@@ -1812,11 +1893,14 @@ It doesn't have to do anything.
 PS.touch = function ( x, y, data, options ) {
 
 
-
     if (!circumVec) {
-        var badLocation = G.getLoc();
 
-        var level = G.getLevelBad();
+        let badLocation = G.getLoc();
+
+        let level = G.getLevelBad();
+
+
+
         if (level === 2) {
             if (x === badLocation[0] && y === badLocation[1]) {
 
@@ -1829,9 +1913,13 @@ PS.touch = function ( x, y, data, options ) {
         }
 
         else if (level === 4) {
-            if ((PS.color(x, y) === PS.COLOR_YELLOW) && level === 4) {
+            if (PS.color(x, y) === PS.COLOR_YELLOW) {
 
                 G.victory("BAD");
+            }
+            else if (PS.color(x, y) === PS.COLOR_RED) {
+
+                G.victory("GOOD");
             }
 
         }
@@ -1869,6 +1957,37 @@ PS.touch = function ( x, y, data, options ) {
                 G.victory("GOOD");
             }
         }
+
+        else if (level > 8) {
+
+
+            var despair = PS.random(5);
+
+            switch (despair) {
+                case 1:
+                    PS.statusText("it hurts");
+
+                    break;
+                case 2:
+                    PS.statusText("there's nothing");
+
+                    break;
+                case 3:
+                    PS.statusText("i warned you");
+
+                    break;
+                case 4:
+                    PS.statusText("its all dark");
+
+                    break;
+                case 5:
+                    PS.statusText("you could have stopped");
+
+                    break;
+            }
+
+        }
+
         else {
 
             if (x === badLocation[0] && y === badLocation[1]) {
@@ -1880,19 +1999,25 @@ PS.touch = function ( x, y, data, options ) {
             }
 
         }
+
+
     }
     else {
-        let r, g, b;
-        r = PS.random(256) - 1; // random red 0-255
-        g = PS.random(256) - 1; // random green
-        b = PS.random(256) - 1; // random blue
 
+        if (!C.getStarted() && !C.getTimer() && C.getAllDone()) {
 
-        if (C.getStarted() === false) {
+            let r, g, b;
+            r = PS.random(256) - 1; // random red 0-255
+            g = PS.random(256) - 1; // random green
+            b = PS.random(256) - 1; // random blue
+
             if (PS.color(x, y) === C.getPreset("COLOR_AREA")) {
 
                 if (C.energyLifePrint() > 0) {
                     PS.gridPlane(1);
+
+                    C.setXTouch(x);
+                    C.setYTouch(y);
 
                     C.setStartingPoint(x, y);
 
@@ -1938,8 +2063,14 @@ PS.release = function( x, y, data, options ) {
 
 	// Add code here for when the mouse button/touch is released over a bead.
 
-    if (circumVec) {
-        if (PS.color(x, y) === C.getPreset("COLOR_RETICLE")) {
+    let xTouch = C.getXTouch();
+    let yTouch = C.getYTouch();
+
+    let currentPos = [x, y];
+    let touchPos = [xTouch, yTouch];
+
+    if (circumVec && !C.getTimer() && C.getAllDone()) {
+        if (PS.color(x, y) === C.getPreset("COLOR_RETICLE") && currentPos !== touchPos ) {
             if (C.energyLifeManip()) {
 
                 PS.statusColor(PS.COLOR_BLUE);
@@ -1948,7 +2079,6 @@ PS.release = function( x, y, data, options ) {
                 // Add code here for mouse clicks/touches over a bead.
 
                 C.start(x, y);
-
 
             }
             PS.gridPlane(2);
@@ -2006,9 +2136,7 @@ PS.enter = function( x, y, data, options ) {
         }
     }
     else {
-        if( (x + 1) < 16 && (x - 1) > 0
-            && (y + 1) < 16 && (y - 1) > 0
-            && (y + 1) > 0 && (x + 1) > 0) {
+        if ( (x + 1) < 16 && (x - 1) > 0 && (y + 1) < 16 && (y - 1) > 0 && (y + 1) > 0 && (x + 1) > 0 && !C.getTimer() && C.getAllDone()) {
             if (PS.color(x, y) === C.getPreset("COLOR_RETICLE")) {
                 C.aimLineSetup(x, y);
             }
@@ -2032,11 +2160,9 @@ It doesn't have to do anything.
 // Uncomment the following BLOCK to expose PS.exit() event handler:
 
 PS.exit = function( x, y, data, options ) {
-    // Uncomment the following code line to inspect x/y parameters:
-    // PS.debug( "PS.exit() @ " + x + ", " + y + "\n" );
-    // Add code here for when the mouse cursor/touch exits a bead.
 
-    if (circumVec) {
+
+    if (circumVec && !C.getTimer() && C.getAllDone()) {
         if ((x + 1) < 16 && (x - 1) > 0
             && (y + 1) < 16 && (y - 1) > 0
             && (y + 1) > 0 && (x + 1) > 0) {
