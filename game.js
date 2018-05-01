@@ -9,8 +9,8 @@
 /*global PS */
 
 
-//var db = "followtherule_db";
-var db = null;
+var db = "followtherule_db";
+//var db = null;
 var circumVec = false;
 
 var C = ( function() {
@@ -1084,28 +1084,27 @@ var G = (function() {
     ];
 
 
-    var level = 0;//Current Level
-    var levelBad = 0;
-
+    var level = 0;//Current Level on the good path
+    var levelBad = 0;//current level on the bad path
     const COLOR_WALL = PS.COLOR_BLACK; // wall color
     const WIDTH = 16;
     const HEIGHT = 16;
 
     var count = 0;
-    var timer = null;
+    var timer = null;//Timer used for animation
 
-    let prevX = 0;
-    let prevY = 0;
+    let prevX = 0;//Previous location of X
+    let prevY = 0;//Previous location of Y
 
-    var badArr;
+    var badArr;//Array that contains the location of the bad bead
 
-    var change = false;
+    var change = false;//Registers that the border has changed in level 5
 
-    var prevChoice;
+    var prevChoice; //Previous choice made by the player
 
-    var firstRound = true;
+    var firstRound = true; //Determines whether or not a single round has been done. For db
 
-    var inGrid = false;
+
 
     var finalize = function () {
         ////////////////
@@ -1116,6 +1115,8 @@ var G = (function() {
     var exports = {
 
 
+        //Sets the victory condition for the choice the player made.
+        //Input is decision, a String that will be either "GOOD" or "BAD"
         victory : function (decision) {
 
             firstRound = false;
@@ -1284,6 +1285,12 @@ var G = (function() {
 
         },
 
+        /*
+        The Following functions are used to set up the design/gameplay of a specific level, and take
+        the x and y coordinates of the bad bead.
+         */
+
+        //level 1;
         randomPlace : function (x, y) {
 
             count -= 1;
@@ -1301,6 +1308,7 @@ var G = (function() {
 
         },
 
+        //Bad Level 2
         randomPlaceBad2 : function (x, y) {
 
             count -= 1;
@@ -1318,6 +1326,7 @@ var G = (function() {
 
         },
 
+        //Bad Level 3
         randomPlaceBad3 : function (x, y) {
 
             PS.statusText("Fine. Click the Yellow Bead.");
@@ -1336,7 +1345,7 @@ var G = (function() {
 
         },
 
-
+        //Bad Level 4
         randomPlaceBad4 : function () {
 
             count -= 1;
@@ -1378,6 +1387,7 @@ var G = (function() {
         },
 
 
+        //Bad Level 5
         randomPlaceBad5 : function (x, y) {
             count -= 1;
             if ( count === 1 ) { // reached zero?
@@ -1403,6 +1413,8 @@ var G = (function() {
 
         },
 
+
+        //Bad Level 6
         randomPlaceBad6 : function (x, y) {
 
             count -= 1;
@@ -1433,7 +1445,7 @@ var G = (function() {
         },
 
 
-
+        //Bad Level 7
         randomPlaceBad7 : function (x, y) {
 
             count -= 1;
@@ -1505,6 +1517,7 @@ var G = (function() {
 
         },
 
+        //Bad Level 8
         randomPlaceBad8 : function (x, y) {
 
             count -= 1;
@@ -1517,6 +1530,7 @@ var G = (function() {
 
         },
 
+        //Bad Level 9
         randomPlaceBad9 : function (x, y) {
 
 
@@ -1525,6 +1539,7 @@ var G = (function() {
 
         },
 
+        //Bad Level 2-5
         randomPlaceGood : function (x, y, redx, redy) {
 
             count -= 1;
@@ -1567,6 +1582,9 @@ var G = (function() {
         },
 
 
+        //Starts the level. Level structure will change depending on the level the player is at.
+        //Takes in as inputs the random x and y coordinates of the bad bead, and sometimes in the case
+        //of the good path, the location of where the red bead will pop up will be.
         start : function (x, y, redx, redy) {
 
             prevX = 0;
@@ -1574,6 +1592,9 @@ var G = (function() {
 
 
             if ( !timer ) { // null if not running
+
+                //Different Victory conditions depending on what the level index is.
+
                 if (levelBad === 0 && level === 0) {
                     count = 4; // reset count
                     timer = PS.timerStart(60, G.randomPlace, x, y);
@@ -1654,6 +1675,8 @@ var G = (function() {
 
         },
 
+
+        //Gets a random coordinate.
         randGet : function () {
 
             let xRand = PS.random(13) + 1;
@@ -1664,37 +1687,31 @@ var G = (function() {
             return randArr;
         },
 
+        //Sets the location of the bad bead.
         setLoc : function(x, y) {
 
             badArr = [x, y];
 
         },
 
+        //gets the location of the bad bead
         getLoc : function() {
 
             return badArr;
 
         },
 
+        //Gets the current level index for the bad path.
         getLevelBad : function() {
             return levelBad;
         },
 
+        //Gets the change value.
         getChange : function() {
             return change;
         },
 
-        setChange : function(newChange) {
-            change = newChange;
-        },
-
-
-        setPrevChoice : function (thePrevChoice) {
-            prevChoice = thePrevChoice;
-        },
-
-
-
+        //Initializes the game and set up the levels. Will change depending on the current level index.
         init : function () {
             PS.gridSize(WIDTH, HEIGHT);
 
@@ -1706,6 +1723,7 @@ var G = (function() {
             var selectedBoard = board1;
 
 
+            //Set up general shape of the board. White with black border.
             for (var x = 0; x < WIDTH; x += 1) {
                 for (var y = 0; y < HEIGHT; y += 1) {
                     if (selectedBoard[(y * HEIGHT) + x] === 1) {
@@ -1719,6 +1737,7 @@ var G = (function() {
             }
 
 
+            //Shape of board changes depending on the current level index.
             if (level === 0 && levelBad === 0) {
 
                 PS.statusText("Welcome. Select the Red Bead.");
@@ -1851,6 +1870,8 @@ var G = (function() {
             PS.audioLoad( "fx_tada" ); //WIN!!!
             PS.audioLoad( "fx_coin6");
 
+
+            //Used for database.
             if (firstRound) {
                 if (db) {
                     db = PS.dbInit(db, {login: finalize});
@@ -1893,6 +1914,7 @@ It doesn't have to do anything.
 PS.touch = function ( x, y, data, options ) {
 
 
+    //If we're still in the original game.
     if (!circumVec) {
 
         let badLocation = G.getLoc();
@@ -2002,6 +2024,7 @@ PS.touch = function ( x, y, data, options ) {
 
 
     }
+    //If its time to run circumvec.
     else {
 
         if (!C.getStarted() && !C.getTimer() && C.getAllDone()) {
@@ -2069,6 +2092,7 @@ PS.release = function( x, y, data, options ) {
     let currentPos = [x, y];
     let touchPos = [xTouch, yTouch];
 
+    //If its time to run circumvec
     if (circumVec && !C.getTimer() && C.getAllDone()) {
         if (PS.color(x, y) === C.getPreset("COLOR_RETICLE") && currentPos !== touchPos ) {
             if (C.energyLifeManip()) {
@@ -2115,6 +2139,7 @@ PS.enter = function( x, y, data, options ) {
 
 	// Add code here for when the mouse cursor/touch enters a bead.
 
+    //If its time to run original game.
     if (!circumVec) {
 
         var change = G.getChange();
@@ -2135,6 +2160,7 @@ PS.enter = function( x, y, data, options ) {
             }
         }
     }
+    //If its time to run circumvec.
     else {
         if ( (x + 1) < 16 && (x - 1) > 0 && (y + 1) < 16 && (y - 1) > 0 && (y + 1) > 0 && (x + 1) > 0 && !C.getTimer() && C.getAllDone()) {
             if (PS.color(x, y) === C.getPreset("COLOR_RETICLE")) {
@@ -2162,6 +2188,7 @@ It doesn't have to do anything.
 PS.exit = function( x, y, data, options ) {
 
 
+    //If its time to run circumvec
     if (circumVec && !C.getTimer() && C.getAllDone()) {
         if ((x + 1) < 16 && (x - 1) > 0
             && (y + 1) < 16 && (y - 1) > 0
@@ -2296,6 +2323,7 @@ PS.shutdown = function( options ) {
 	// Add code here for when Perlenspiel is about to close.
 
 
+    //Used for Database
     if ( db && PS.dbValid( db ) ) {
         PS.dbEvent( db, "shutdown", true );
         PS.dbSend( db, "bmoriarty", { discard : true } );
