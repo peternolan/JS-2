@@ -9,8 +9,8 @@
 /*global PS */
 
 
-var db = "followtherule_db";
-//var db = null;
+//var db = "followtherule_db";
+var db = null;
 var circumVec = false;
 
 var C = ( function() {
